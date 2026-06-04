@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KYC Name Screening</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">KS</div>
+        <div class="brand-name">
+          <div class="brand-title">Compliance Console</div>
+          <div class="brand-sub">KYC Name Screening</div>
+        </div>
+      </div>
+      <nav class="topnav">
+        <span class="nav-link active">Screening</span>
+        <span class="nav-link">Cases</span>
+        <span class="nav-link">Reports</span>
+        <span class="nav-link">Settings</span>
+      </nav>
+      <div class="user-chip">
+        <span class="user-dot"></span>
+        <span>Demo Analyst</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div class="hero-eyebrow">New screening</div>
+      <h1>Run a name screen against open sources</h1>
+      <p class="hero-lead">
+        Enter the legal name of the prospective or existing client. The system
+        runs two structured open-source queries against Google — one for adverse
+        news, one for political exposure and associations — and returns a
+        numbered, classified summary of the first twenty results from each.
+      </p>
+
+      {% if error %}
+      <div class="alert alert-error">{{ error }}</div>
+      {% endif %}
+
+      <form class="screen-form" method="POST" action="{{ url_for('screen') }}">
+        <label for="name">Client legal name</label>
+        <div class="form-row">
+          <input
+            id="name"
+            name="name"
+            type="text"
+            autocomplete="off"
+            placeholder="e.g. Wei Ming Tan"
+            required
+            maxlength="120"
+            autofocus
+          />
+          <button type="submit" class="btn-primary">
+            Run screening
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </button>
+        </div>
+        <div class="form-hint">
+          Use the legal name as it appears on government-issued identification.
+          Diacritics and aliases may be added in a follow-up review.
+        </div>
+      </form>
+    </section>
+
+    <section class="grid-3">
+      <div class="card">
+        <div class="card-num">01</div>
+        <h3>Adverse news query</h3>
+        <p>
+          Targets fraud, laundering, sanctions, corruption, criminal proceedings
+          and related coverage across mainstream and specialist publications.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-num">02</div>
+        <h3>PEP &amp; associations query</h3>
+        <p>
+          Targets political exposure, state ownership, ministerial appointments,
+          and corporate or family affiliations relevant to enhanced due diligence.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-num">03</div>
+        <h3>Classification &amp; reporting</h3>
+        <p>
+          Every result is numbered, classified into one of five compliance
+          categories, and aggregated into an overall risk verdict for the subject.
+        </p>
+      </div>
+    </section>
+
+    <section class="disclaimer">
+      <strong>For demonstration use.</strong>
+      Open-source screening is a starting point, not a substitute for sanctions
+      list checking, ID verification, or analyst review. Outputs require human
+      adjudication before any decision is taken.
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>KYC Compliance Console · Demo build</div>
+    <div class="muted">v0.1 · Internal use only</div>
+  </footer>
+</body>
+</html>

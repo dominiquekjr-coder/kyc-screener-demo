@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KYC Screening Report · {{ name }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">KS</div>
+        <div class="brand-name">
+          <div class="brand-title">Compliance Console</div>
+          <div class="brand-sub">KYC Name Screening</div>
+        </div>
+      </div>
+      <nav class="topnav">
+        <a class="nav-link" href="{{ url_for('index') }}">Screening</a>
+        <span class="nav-link">Cases</span>
+        <span class="nav-link">Reports</span>
+        <span class="nav-link">Settings</span>
+      </nav>
+      <div class="user-chip">
+        <span class="user-dot"></span>
+        <span>Demo Analyst</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="report-head">
+      <div>
+        <div class="crumb">
+          <a href="{{ url_for('index') }}">Screening</a>
+          <span>›</span>
+          <span>Report</span>
+        </div>
+        <h1 class="report-title">{{ name }}</h1>
+        <div class="report-meta">
+          <span>Screened {{ timestamp }}</span>
+          <span class="dot">·</span>
+          <span>Two-query open-source review</span>
+          <span class="dot">·</span>
+          <span class="mode-chip {{ 'mode-live' if using_real else 'mode-demo' }}">
+            {{ 'Live data (SerpAPI)' if using_real else 'Demonstration data' }}
+          </span>
+        </div>
+      </div>
+      <div class="report-actions">
+        <button class="btn-secondary" onclick="window.print()">Print / Save PDF</button>
+        <a class="btn-secondary" href="{{ url_for('index') }}">New screening</a>
+      </div>
+    </div>
+
+    {% for s in sections %}
+    <section class="query-section">
+      <div class="query-head">
+        <div class="query-id">{{ s.id }}</div>
+        <div class="query-titles">
+          <h2>{{ s.label }}</h2>
+          <div class="query-desc">{{ s.description }}</div>
+        </div>
+        <div class="risk-pill risk-{{ s.summary.overall_risk|lower }}">
+          <span class="risk-dot"></span>
+          <span class="risk-label">{{ s.summary.overall_risk }}</span>
+          <span class="risk-msg">— {{ s.summary.risk_message }}</span>
+        </div>
+      </div>
+
+      <div class="query-string">
+        <span class="qs-label">Query</span>
+        <code>{{ s.query_string }}</code>
+        <a class="qs-link" href="{{ s.google_url }}" target="_blank" rel="noopener">Open in Google ↗</a>
+      </div>
+
+      <div class="analyst-note">
+        <span class="an-label">Analyst note</span>
+        <span>{{ s.summary.analyst_note }}</span>
+      </div>
+
+      <div class="summary-grid">
+        {% for b in s.summary.breakdown %}
+        <div class="sum-cell tone-{{ b.tone }}">
+          <div class="sum-count">{{ b.count }}</div>
+          <div class="sum-label">{{ b.label }}</div>
+          <div class="sum-nums">
+            {% if b.numbers %}
+              {% for n in b.numbers %}<span class="num-chip">{{ n }}</span>{% endfor %}
+            {% else %}
+              <span class="muted">—</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Google-style screenshot panel: numbered results 1–20 -->
+      <div class="serp">
+        <div class="serp-chrome">
+          <div class="serp-dots"><span></span><span></span><span></span></div>
+          <div class="serp-url">google.com/search?q={{ s.query_string[:80] }}{% if s.query_string|length > 80 %}…{% endif %}</div>
+        </div>
+        <div class="serp-body">
+          <div class="serp-meta">About {{ s.results|length }} results · Page 1</div>
+          {% for r in s.results %}
+          <div class="serp-result tone-{{ r.tone }}">
+            <div class="serp-badge">{{ r.number }}</div>
+            <div class="serp-content">
+              <div class="serp-url-row">{{ r.displayed_url }}</div>
+              <a class="serp-title" href="{{ r.url }}" target="_blank" rel="noopener">{{ r.title }}</a>
+              <div class="serp-snippet">{{ r.snippet }}</div>
+              <div class="serp-class">
+                <span class="class-pill tone-{{ r.tone }}">{{ r.match_label }}</span>
+                {% if r.detail %}<span class="class-detail">⚠ {{ r.detail }}</span>{% endif %}
+                <span class="class-reason">{{ r.reason }}</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    {% endfor %}
+
+    <section class="disclaimer">
+      <strong>Compliance use only.</strong>
+      Outputs are auto-classified from public web sources and require human
+      adjudication. This report is not a sanctions or PEP list determination.
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>KYC Compliance Console · Demo build</div>
+    <div class="muted">v0.1 · Internal use only</div>
+  </footer>
+</body>
+</html>
